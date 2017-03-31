@@ -1,6 +1,7 @@
 package android.coolweather.com.coolweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.coolweather.com.coolweather.db.City;
 import android.coolweather.com.coolweather.db.County;
 import android.coolweather.com.coolweather.db.Province;
@@ -83,6 +84,12 @@ public class ChooseAreaFragment extends Fragment {
                 } else if (currentLevel == LEVEL_CITY) {
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if (currentLevel == LEVEL_COUNTY){
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                    intent.putExtra("weather_id",weatherId);
+                    startActivity(intent);
+//                    getActivity().finish();//这边都最好不要直接关闭原来的窗口，让用户可以返回去再选择
                 }
             }
         });
@@ -143,6 +150,9 @@ public class ChooseAreaFragment extends Fragment {
         }
     }
 
+    /**
+     * 查询市内所有县，优先从数据库查询，如果没有查询到再去服务器上查询
+     */
     private void queryCounties() {
         titleText.setText(selectedCity.getCityName());
         backButton.setVisibility(View.VISIBLE);//将返回按钮设为可见
@@ -163,6 +173,9 @@ public class ChooseAreaFragment extends Fragment {
         }
     }
 
+    /**
+     * 从服务器查询对应类型的信息
+     */
     private void queryFromServer(String address, final String type) {
         showProgressDialog();
         HttpUtil.sendOkHttpRequest(address, new Callback() {
